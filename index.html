@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notas Criollas - Blog de Rienda</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #fafafa; color: #1a1a1a; line-height: 1.6; }
+        .container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .home-header { text-align: center; padding: 4rem 2rem 2rem; }
+        .home-header h1 { font-size: 24px; font-weight: 400; color: #666; margin-bottom: 2rem; }
+        .search-box { width: 100%; max-width: 500px; margin: 0 auto; position: relative; }
+        .search-input { width: 100%; padding: 12px 16px; font-size: 16px; border: 1px solid #ddd; border-radius: 6px; }
+        .search-input:focus { outline: none; border-color: #999; box-shadow: 0 0 0 3px rgba(0,0,0,0.05); }
+        .suggestions { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-top: none; border-radius: 0 0 6px 6px; max-height: 300px; overflow-y: auto; z-index: 10; display: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .suggestions.active { display: block; }
+        .suggestion-item { padding: 8px 16px; cursor: pointer; font-size: 13px; color: #666; border-bottom: 1px solid #f0f0f0; }
+        .suggestion-item:hover { background: #f5f5f5; }
+        .filters { display: flex; gap: 12px; flex-wrap: wrap; margin: 2rem 0; align-items: center; }
+        .search-control { flex: 1; min-width: 250px; position: relative; }
+        .filter-select, .clear-btn { padding: 8px 12px; font-size: 14px; border: 1px solid #ddd; border-radius: 6px; background: white; cursor: pointer; }
+        .filter-select:hover, .clear-btn:hover { border-color: #999; }
+        .results-info { font-size: 13px; color: #999; margin: 1rem 0; }
+        .articles-grid { display: flex; flex-direction: column; gap: 12px; }
+        .article-card { padding: 1rem; border: 1px solid #ddd; border-radius: 6px; background: white; cursor: pointer; }
+        .article-card:hover { border-color: #999; background: #f9f9f9; }
+        .article-card-title { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; font-weight: 500; margin-bottom: 0.5rem; }
+        .article-card-year { font-size: 13px; color: #999; white-space: nowrap; }
+        .article-card-meta { font-size: 13px; color: #999; }
+        .back-btn { padding: 8px 12px; font-size: 14px; border: 1px solid #ddd; background: white; border-radius: 6px; cursor: pointer; margin-bottom: 1.5rem; }
+        .back-btn:hover { border-color: #999; background: #f5f5f5; }
+        .article-view h1 { font-size: 28px; margin-bottom: 0.5rem; }
+        .article-view-meta { display: flex; gap: 1.5rem; margin-bottom: 2rem; font-size: 13px; color: #999; }
+        .article-view-content { line-height: 1.8; font-size: 15px; white-space: pre-wrap; word-wrap: break-word; }
+        .empty-state { text-align: center; padding: 2rem; color: #999; }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script>
+        const articlesData = [
+            {"id": "2011", "year": 2011, "title": "Final Nacional FZB Categoría A 2011", "location": "Palermo", "date": "Noviembre 2011", "content": "Si hay un momento que todo aquel que por la FZB espera con anisias es la Final Nacional de la Categoría A. El lugar es siempre el mismo: Palermo o la Rural de Palermo."},
+            {"id": "2012", "year": 2012, "title": "Final Nacional FZB Categoría A 2012", "location": "Palermo", "date": "Marzo 2012", "content": "PREMIO PRESIDENTE FELIPE Z. BALLESTER CATEGORIA A Afuera la ciudad seguía. El estruendo de esa bestia enorme que es Buenos Aires se repetía como cada día, ignorante de lo que estaba ocurriendo dentro del predio de La Rural."},
+            {"id": "2013-1", "year": 2013, "title": "Final Nacional FZB Categoría B 2013", "location": "Palermo", "date": "Noviembre 2013", "content": "La rienda es esperar. Esperar que se haga la hora de ensillar, esperar que termine la competencia anterior, esperar que te llamen a pista, esperar que pasen los que van antes que vos."},
+            {"id": "2013-2", "year": 2013, "title": "Entrevista a Gonzalo Nievas", "location": "Luján de Cuyo", "date": "2013", "content": "ENTREVISTA A GONZALO NIEVAS La Pistilla entra a la pista y una atracción inevitable te obliga a mirarla. Se mueve elegante, como erguida, con las orejitas paradas y orgullosa."},
+            {"id": "2013-3", "year": 2013, "title": "Cabalgata de Criadores", "location": "Varias locaciones", "date": "Febrero 2013", "content": "CABALGATA de Criadores Competir un criollo hoy es correr en Fórmula 1. Cuidados extremos, vendas, cremas, inyecciones, suplementos, planes de entrenamiento."},
+            {"id": "2014", "year": 2014, "title": "Final Nacional FZB Categoría A 2014", "location": "Palermo", "date": "Noviembre 2014", "content": "La cosa en el campo es temprano. Y la cosa cuando el campo va a la ciudad, parece que también así que el 30 de marzo de 2014 que era domingo y llovía a cántaros."},
+            {"id": "2017", "year": 2017, "title": "Final Nacional FZB Categoría A 2017", "location": "Palermo", "date": "Octubre 2017", "content": "Final Felipe Z. Ballester A 2017 En algún box de algún lugar de la pampa húmeda, con el hocico hundido en un tacho de avena mojada, enmantado y tranquilo, un padrillo está a punto de ser protagonista."},
+            {"id": "2018", "year": 2018, "title": "Final Nacional FZB Categoría A 2018", "location": "Palermo", "date": "Noviembre 2018", "content": "Es domingo al mediodía y las tribunas de la pista cubierta de Palermo se van llenando de paisanos que se arriman, como en una procesión laica, a ese pedazo de arena."},
+            {"id": "2019", "year": 2019, "title": "Final Nacional FZB Categoría A 2019", "location": "Palermo", "date": "Octubre 2019", "content": "¿Habrá algo más lindo que ajustar la cincha en Palermo? Porque sí, es algo que hacés todos los días, un montón de veces, casi sin pensar."},
+            {"id": "2020", "year": 2020, "title": "Final Nacional FZB Categoría A 2020", "location": "La República", "date": "Febrero 2020", "content": "Final(es) de la Felipe Z. Ballester A A falta de una, dos. En 2020, con la pandemia cerrando todo en plena semifinal."},
+            {"id": "2021", "year": 2021, "title": "Final Nacional FZB Categoría A 2021", "location": "Mendoza", "date": "Septiembre 2021", "content": "Final Nacional A Ciclo 2020 2021 el lugar, esta vez, era Mendoza. Toda la Rienda del país se había convocado en un cónclave ultraintenso."},
+            {"id": "2022", "year": 2022, "title": "Final Nacional FZB Categoría A 2022", "location": "Jesús María", "date": "Abril 2022", "content": "Final Nacional FZB Categoría A 2022 El día gris no combinaba con la expectativa. La final de la rienda volvía a Jesús María."},
+            {"id": "2023", "year": 2023, "title": "La rienda, territorio para las sorpresas", "location": "Palermo", "date": "Otoño 2023", "content": "La rienda, territorio para las sorpresas Todos los años nos acomodamos alrededor de una pista de arena con la certeza de que muchas cosas van a pasar."},
+            {"id": "2024", "year": 2024, "title": "Final Nacional FZB Categoría A 2024", "location": "Palermo", "date": "Noviembre 2024", "content": "Final FZB categoría A 2024 Es un día de otoño en 2006 y un hombre de chaleco de carpincho y chupalla deja la pista central."},
+            {"id": "2025", "year": 2025, "title": "Final FZB A 2024-2025", "location": "Palermo", "date": "Noviembre 2024", "content": "Final Nacional FZB categoría A 2024 2025 Afuera era un día más. El 37 pasaba por Sarmiento."},
+            {"id": "2025-2026", "year": 2026, "title": "Final FZB A 2025-2026", "location": "Palermo", "date": "Marzo 2025", "content": "Siempre que llovió, paró, pero siempre que paró volvió a llover también y llovida sobre mojado encontrábamos la Pista Central de Palermo."}
+        ];
+
+        class Blog {
+            constructor() {
+                this.articles = articlesData;
+                this.view = 'home';
+                this.current = null;
+                this.query = '';
+                this.year = '';
+                this.years = [...new Set(this.articles.map(a => a.year))].sort((a,b) => b-a);
+                this.render();
+            }
+            filter() {
+                return this.articles.filter(a => {
+                    const q = this.query.toLowerCase();
+                    const matches = q === '' || a.title.toLowerCase().includes(q) || a.content.toLowerCase().includes(q);
+                    const year_match = this.year === '' || a.year.toString() === this.year;
+                    return matches && year_match;
+                }).sort((a,b) => b.year - a.year);
+            }
+            render() {
+                const app = document.getElementById('app');
+                if (this.view === 'article') {
+                    const a = this.articles.find(x => x.id === this.current);
+                    app.innerHTML = `<div class="container"><button class="back-btn" onclick="blog.goHome()">← Volver</button><h1>${a.title}</h1><div class="article-view-meta"><span>${a.location}</span><span>${a.date}</span></div><div class="article-view-content">${a.content.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div></div>`;
+                } else if (this.query === '' && this.year === '') {
+                    app.innerHTML = `<div class="home-header"><h1>Mis notas</h1><div class="search-box"><input type="text" class="search-input" id="search" placeholder="Buscar..." autocomplete="off"/><div class="suggestions" id="suggestions"></div></div></div>`;
+                    this.setupSearch();
+                } else {
+                    const filtered = this.filter();
+                    app.innerHTML = `<div class="container"><div class="filters"><div class="search-control"><input type="text" class="search-input" id="search" placeholder="Buscar..." value="${this.query}" autocomplete="off"/><div class="suggestions" id="suggestions"></div></div><select class="filter-select" onchange="blog.year=this.value;blog.render()"><option value="">Todos los años</option>${this.years.map(y => `<option value="${y}" ${this.year===y.toString()?'selected':''}>${y}</option>`).join('')}</select><button class="clear-btn" onclick="blog.query='';blog.year='';blog.render()">Limpiar</button></div><div class="results-info">${filtered.length} artículo${filtered.length!==1?'s':''}</div><div class="articles-grid">${filtered.length > 0 ? filtered.map(a => `<div class="article-card" onclick="blog.view='article';blog.current='${a.id}';blog.render()"><div class="article-card-title"><span>${a.title}</span><span class="article-card-year">${a.year}</span></div><div class="article-card-meta">${a.location} • ${a.date}</div></div>`).join('') : '<div class="empty-state">No se encontraron artículos.</div>'}</div></div>`;
+                    this.setupSearch();
+                }
+            }
+            setupSearch() {
+                const input = document.getElementById('search');
+                input.addEventListener('input', (e) => {
+                    this.query = e.target.value;
+                    const suggestions = document.getElementById('suggestions');
+                    if (this.query.length > 1) {
+                        const matches = this.articles.filter(a => a.title.toLowerCase().includes(this.query.toLowerCase()));
+                        if (matches.length > 0) {
+                            suggestions.classList.add('active');
+                            suggestions.innerHTML = matches.slice(0, 5).map(a => `<div class="suggestion-item" onclick="blog.current='${a.id}';blog.view='article';blog.query='';blog.render()">${a.title}</div>`).join('');
+                        } else {
+                            suggestions.classList.remove('active');
+                        }
+                    } else {
+                        suggestions.classList.remove('active');
+                    }
+                });
+                input.addEventListener('blur', () => setTimeout(() => document.getElementById('suggestions').classList.remove('active'), 200));
+                input.focus();
+            }
+            goHome() {
+                this.view = 'home';
+                this.current = null;
+                this.query = '';
+                this.year = '';
+                this.render();
+            }
+        }
+        const blog = new Blog();
+    </script>
+</body>
+</html>

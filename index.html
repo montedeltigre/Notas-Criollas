@@ -1,0 +1,2079 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notas Criollas - Blog de Rienda</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #fafafa;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .home-header {
+            text-align: center;
+            padding: 4rem 2rem 2rem;
+        }
+        
+        .home-header h1 {
+            font-size: 24px;
+            font-weight: 400;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+        
+        .search-box {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #999;
+            box-shadow: 0 0 0 3px rgba(0,0,0,0.05);
+        }
+        
+        .suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 10;
+            display: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .suggestions.active {
+            display: block;
+        }
+        
+        .suggestion-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #666;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .suggestion-item:hover {
+            background: #f5f5f5;
+        }
+        
+        .suggestion-category {
+            padding: 8px 16px;
+            background: #fafafa;
+            font-size: 11px;
+            font-weight: 600;
+            color: #999;
+            text-transform: uppercase;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+            align-items: center;
+        }
+        
+        .search-control {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+        
+        .filter-select {
+            padding: 8px 12px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .filter-select:hover {
+            border-color: #999;
+        }
+        
+        .filter-select:focus {
+            outline: none;
+            border-color: #999;
+        }
+        
+        .clear-btn {
+            padding: 8px 12px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.2s;
+        }
+        
+        .clear-btn:hover {
+            border-color: #999;
+            background: #f5f5f5;
+        }
+        
+        .results-info {
+            font-size: 13px;
+            color: #999;
+            margin: 1rem 0;
+        }
+        
+        .articles-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .article-card {
+            padding: 1rem 1.25rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .article-card:hover {
+            border-color: #999;
+            background: #f9f9f9;
+        }
+        
+        .article-card-title {
+            font-size: 15px;
+            font-weight: 500;
+            color: #1a1a1a;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .article-card-year {
+            font-size: 13px;
+            color: #999;
+            white-space: nowrap;
+        }
+        
+        .article-card-meta {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 0.75rem;
+        }
+        
+        .back-btn {
+            padding: 8px 12px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #1a1a1a;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s;
+        }
+        
+        .back-btn:hover {
+            border-color: #999;
+            background: #f5f5f5;
+        }
+        
+        .article-view h1 {
+            font-size: 28px;
+            margin-bottom: 0.5rem;
+            color: #1a1a1a;
+        }
+        
+        .article-view-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            font-size: 13px;
+            color: #999;
+        }
+        
+        .article-view-content {
+            line-height: 1.8;
+            color: #1a1a1a;
+            font-size: 15px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #999;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script>
+        const articles = [
+            {
+                id: '2011',
+                year: 2011,
+                title: 'Final Nacional FZB Categoría A 2011',
+                location: 'Palermo',
+                date: 'Noviembre 2011',
+                content: `Si hay un momento que todo aquel que por la FZB espera con anisias es la Final Nacional de la Categoría A. El lugar es siempre el mismo: Palermo o la Rural de Palermo, el entusiasmo también y las pruebas en general no varían mucho.`
+            },
+            {
+                id: '2012',
+                year: 2012,
+                title: `Final Nacional FZB Categoría A 2012`,
+                location: `Palermo`,
+                date: `Marzo 2012`,
+                content: `PREMIO PRESIDENTE
+
+FELIPE Z. BALLESTER
+
+CATEGORIA “A” - 2012
+
+por Nicolás Gimbatti - CAF
+
+Afuera la ciudad seguía. El estruendo de esa bestia enor-
+
+me que es Buenos Aires se repetía como cada día, igno-
+
+rante de lo que estaba ocurriendo dentro del predio de
+
+La Rural. Afuera los colectivos tocaban bocina, las ma-
+
+dres retaban a sus hijos y los vendedores ambulantes
+
+vociferaban sus precios. Adentro se ajustaban cinchas,
+
+se revisaban frenos, se flexionaban músculos, se echa-
+
+ban rezos. Se acercaba la final de la rienda, ese mo-
+
+mento único donde los mejores jinetes del mundo crio-
+
+llista se reúnen a ver de qué están hechos, a competir
+
+contra sus pares, contra el público, contra ellos mis-
+
+mos. A poner el alma en esos siete minutos eternos y
+
+efímeros donde pueden pasar tantas cosas que a veces
+
+se confunde el mérito de un logro con una mera lotería.
+
+A eso venían todos los jinetes, contra esto se enfrenta-
+
+ban. Ocho hombres, ocho mendocinos en este caso, que
+
+entraban a la cubierta de Palermo con el pecho hincha-
+
+do de orgullo para disimular la tensión. Ocho hombres
+
+que venían a refrendar lo hecho en Feriagro, a demos-
+
+trar que no había sido casualidad.
+
+también sufre y nunca suelta los andares que son paga-
+
+dos con 4 puntos y lo dejan en una posición difícil de
+
+remontar. Marcial lo conduce con destreza y mucha vio-
+
+lencia, demostrando valentía y ganas de estar arriba,
+
+pero esos andares flojos y un cero en el desmontar y
+
+montar lo dejan con 40 puntos y medio y demasiado
+
+dependiente de lo que hagan los demás para decidir su
+
+posición final.
+
+Marcial metió la mano en el sombrero y la cara se le
+
+desfiguró en una mueca de bronca que revelaba que
+
+había sacado el papelito con el número 1, aunque inten-
+
+tara disimularlo forzando una media sonrisa. El alivio
+
+aflojó el gesto de los demás competidores que confir-
+
+maron que por lo menos no entraban primeros. No ha-
+
+bía más que hablar, no había más prolegómenos, se-
+
+gundos afuera, Marcialito queda en pista y a ver qué
+
+pasa. Empieza la final.
+
+Miquicho El Serranito es el caballo. Un bayo potente e
+
+impetuoso que no puede disimular la tensión que él
+
+Entra a la pista una de las vedettes de la final del año
+
+pasado. Dormida Pistilla, reservada campeona 2011, con
+
+la monta de Gonzalo Nievas en su segundo año en la A,
+
+que tranqueaba firme y de orejas paradas hacia los ju-
+
+rados para el saludo inicial, con su jinete sacando pecho
+
+y mirando al frente, altivo, consciente del momento que
+
+estaba viviendo y dispuesto a estar a la altura de las
+
+circunstancias. La yegua también parecía estar al tanto
+
+de lo que se jugaba y arrancó los andares paseando su
+
+elegancia como seduciendo, mezclándola con potencia y
+
+agilidad. Ocho puntos para ella y la cosa que se ponía
+
+seria. Unas entradas de patas bastante malas, que pro-
+
+vocaron el fastidio del jinete para con esa pista imper-
+
+donable, le significaron solamente 4 y medio y la nece-
+
+sidad de sumar en los circulares, su punto fuerte. La
+
+troya fue, como en Mendoza, una sinfonía. Una demos-
+
+tración perfecta de la precisión en velocidad sustentada
+
+en la agilidad y la fuerza. Una troya que se pagó 7 y
+
+medio porque la entrega fue desprolija y, quizás, por
+
+alguna cosita en la cadencia, pero qué deleite. Como el
+
+ocho, también, donde sacó ocho y medio para terminar
+
+de solucionar los problemas de la rayada y empezar a
+
+sumar puntos serios. Dos seis en el volapié y la vuelta
+
+sobre las patas más un cinco en el retroceso la ponían
+
+120en buena posición pero lo que la dejó muy bien parada
+
+fue cobrar los cuatro puntos del desmontar y montar
+
+que volverían a ser definitorios, como siempre. 49 y
+
+medio, el puntaje fijado y ahora que vengan los otros y
+
+lo superen.
+
+Raúl González nos dejó sin la posibilidad de ver al Hua-
+
+suncho defender por segunda vez su título pero traía a
+
+cambio a su propia hermana, la preciosa Guampa Chis-
+
+mosa que venía a defender el nombre de su hermano y
+
+que empezó muy bien con unos andares correctos y una
+
+rayada de manual que le significaron 6 y 8 puntos respec-
+
+tivamente, pero luego no pudo marcar puntos fuertes en
+
+los tres movimientos siguientes y si bien hizo los 4 del
+
+desmontar y montar y un retroceso de 5 y medio, quedó
+
+con 46 y medio y con demasiados caballos buenos toda-
+
+vía por venir como para aguantar con ese puntaje.
+
+Si bien había habido puntajes respetables, el promedio
+
+venía muy por debajo de lo que se había visto en Men-
+
+doza. Y esas situaciones a Marcos Nievas no se le esca-
+
+pan. Viejo zorro, soldado de mil batallas, competidor
+
+frío, calculador y preciso sabía que tenía su oportuni-
+
+dad, sentía que la historia, esta vez, le estaba abriendo
+
+una puerta y que tenía yegua para aprovecharlo. 6 y
+
+medio, 7, 8 y 7 y medio en los primeros 4 movimientos
+
+para quedar primero en el parcial de esos cuatro y las
+
+sonrisas maliciosas que empezaban a aflorar en la tri-
+
+buna, se notaba que el viejo, el máximo campeón en
+
+actividad, había olido sangre. 4 y medio en el vo`
+            },
+            {
+                id: '2013-1',
+                year: 2013,
+                title: `Final Nacional FZB Categoría B 2013`,
+                location: `Palermo`,
+                date: `Noviembre 2013`,
+                content: `La rienda es esperar. Esperar que se haga la hora de
+
+ensillar, esperar que termine la competencia anterior, es-
+
+perar que te llamen a pista, esperar que pasen los que
+
+van antes que vos. La rienda es esperar y es ingrata
+
+porque tenés una sola oportunidad cada vez y porque
+
+dura muy poco y porque te sale o te vas a tu casa. Por
+
+eso nos gusta. Por eso estaban ahí, ese jueves de marzo,
+
+de calor y de cambios de horario los 6 finalistas de la B
+
+esperando que terminara la final de la C para poder en-
+
+trar. Afuera de la pista las miradas resignadas no llega-
+
+ban a ponerse nerviosas porque faltaba un rato y mejor
+
+no andar torturando la cabeza y las tripas antes de tiem-
+
+po. Hasta que, por fin, llega el momento y ahí sí se endu-
+
+recen los gestos, se ajustan las cinchas, se tuercen las
+
+tripas. Empieza la final nacional de la rienda, categoría B,
+
+empieza la verdad, se terminan las excusas para esos 6
+
+tipos que vienen de todo el país a tratar de alcanzar la
+
+gloria, de confirmar lo que hicieron en Mendoza, de as-
+
+cender a la A.
+
+Luciano Bustos entra a pista con todo el peso de su
+
+apellido a cuestas, tranqueando firme y liberal en Com-
+
+pañera Cotorra, novedad de esta temporada, presenta-
+
+da por Melisa Verdoljak y criada en los pagos rosarinos.
+
+No la tienen fácil, ni la yegua ni el jinete. A la yegua la
+
+traiciona su temperamento, demasiado caliente y al jinete
+
+le pasan factura los varios años retirado de las pistas y
+
+arrancan con 4 puntos en unos andares que no fueron
+
+malos pero que tuvieron fallos claros. La rayada, otro
+
+problema y un cero en el desmontar y montar iban a
+
+volver inútiles los dignos puntajes en el volapié, la troya, el
+
+ocho y el retroceso. 30 puntos para ellos y el duro golpe
+
+de realidad que significa conocer de primera mano el
+
+nivel al que se está compitiendo y cuánto se paga una
+
+ausencia prolongada. Ya la pagaron, ya están de vuelta,
+
+ahora es todo ganancia.
+
+Entraba el Guay Tiento, presentado por la cabaña La
+
+Gracia y montado por Máximo Correa Dupuy. Un binomio
+
+que demostró por qué había llegado donde llegó y que
+
+siembra esperanzas para el futuro pero que al igual que a
+
+Luciano Bustos con la Cotorra, la experiencia le jugó una
+
+mala pasada, no pudieron hacer los puntos que habían
+
+hecho en Mendoza y se volvieron masticando la bronca
+
+de esos 29 finales que, espero, no hayan significado una
+
+pérdida de entusiasmo. Tienen que entender que no son
+
+29 puntos, son 29 puntos en una final de Palermo, que es
+
+muy distinto, que no es para cualquiera, que es otra cosa.
+
+Las Beatrices volvían a Palermo después de varios años
+
+y venían pidiendo pista. La yegua era la Tinajera Rueca y
+
+el jinete era Nico Fazio quién sorprendentemente no esta-
+
+ba estudiando en ese momento. El binomio había causa-
+
+do estragos en la pista de Feriagro, terminando segundo
+
+en la semifinal y dejándonos a todos boquiabiertos por la
+
+entrega, la prestancia, la emoción, el arte. Pavada de
+
+pergaminos tenía que venir a refrendar. Para colmo, para
+
+ponernos nerviosos a todos arrancó con un 4 y medio en
+
+los andares que lo obligaba a hacer todo lo otro muy bien,
+
+sin errores. Pues no fue un problema. Se encargaron de
+
+dejar surcos en una rayada a una velocidad que parecía
+
+que no iba a poder parar y se encargaron de dibujar dos
+
+círculos perfectos en una troya con potencia, con veloci-
+
+dad, con la yegua bien colocada, hilvanaron un ocho que
+
+fue un poema y plantaron unos volapiés que decí que
+
+Nico es jinete porque en la vuelta del segundo volapié la
+
+yegua entendió qué le estaban pidiendo y giró como si
+
+estuviera disparando en el campo. Mamita, cómo no se
+
+cayó este pibe. 7, 8, 7 y medio, 6 y medio y puntajes
+
+126Jurados Santiago Pérez Kemp, Martín Crespo y secretarios
+
+perfectos en el desmontar y montar y el retroceso para
+
+clavar 43,5 y llanto, emoción, fanfarrias, papelitos y a es-
+
+perar a ver qué pasaba, porque ahora iban a tener que
+
+ganarles.
+
+Seguía Pablo Torralba que aparecía esta vez clasificado
+
+en Yancamil Guor, padrillo venido de San Andrés de Giles,
+
+domado y arreglado por él mismo, debutado en esta tem-
+
+porada y que estaba sobrado con haber llegado a la final
+
+pero que, claro, quería ir por todas. Entró tranqueador,
+
+como nos tiene acostumbrados, e hizo 5, 7, 6 y 5, mar-
+
+cando una regularidad de esas que ilusionan pero un 3 y
+
+medio en el volapié lo apartaba de las ilusiones de triunfo
+
+y cerraba con 3 y 3 y medio en los dos últimos movimien-
+
+tos para terminar con 33 puntos y coronar una actuación
+
+que no habrá dejado un gran sabor de boca pero que
+
+bien mirada marca grandes perspectivas para el futuro.
+
+El Poky Moreno no ganó la final de la B 2011 porque a
+
+veces los caballos ven fantasmas, paran las orejas y se
+
+van a buscarlos. Y siempre es en el desmontar y montar.
+
+Pudo haberse llevado todo aquella vez y tuvo que confor-
+
+marse con un cuarto puesto. En aquel momento todos
+
+nos asombramos de su tranquilidad y de la simpleza con
+
+la que manejaba sus caballos. No perdió nada de eso.
+
+Ex`
+            },
+            {
+                id: '2013-2',
+                year: 2013,
+                title: `Entrevista a Gonzalo Nievas`,
+                location: `Luján de Cuyo`,
+                date: `2013`,
+                content: `ENTREVISTA A
+
+GONZALO NIEVAS
+
+Por Nicolás Gimbatti (Criollos al Futuro)
+
+“Me probé a mí mismo que se pueden
+
+ganar cosas sin sangres Facón”
+
+136La Pistilla entra a la pista y una atracción inevitable te obliga a mirarla. Se mueve elegante, como
+
+erguida, con las orejitas paradas y orgullosa, seductora, dama sabedora de que todos la miran.
+
+Arriba está el otro protagonista de esta historia. Enhorquetado en su montura tapada en carpincho,
+
+con las botas haciendo juego y el traje con botones de plata que ya es su marca registrada, entra
+
+Gonzalo puño en el muslo dispuesto a confirmar en esta final todo lo que vino anticipando en la
+
+temporada. Pero, como siempre, el cuento se corona en Palermo pero empieza mucho antes.
+
+Gonzalito, contanos de la Pistilla.
+
+La yegua se compró en un remate de San Baldomero, fue
+
+de los últimos productos diseñados por Eduardo Ballester.
+
+Es una hija del Chuchoca y la Dormida Fantasía, que es
+
+Zapateado en la Forastera, que va al Quizapu Forastero.
+
+Estaba de redomona corriente, nomás, y para mostrarla
+
+un poco le pusieron un freno de patas largas y la apuraron
+
+ahí en el remate. No se destacó mucho, el que se destacó
+
+fue el Andrajo, que también se embarcó para Mendoza.
+
+¿Con qué expectativas tomaste la yegua?
+
+La empecé a trabajar para ver si podía servir para algo, lo
+
+que fuera. La llevamos a morfología y la moví en la rienda
+
+de la exposición. En una vuelta, vinieron los Bustos a
+
+casa y fuimos a ver los caballos que estaba trabajando
+
+yo en ese momento. Agarré la Pistilla y le hice una troya de
+
+guatana y quedaron los dos impresionados. En esa época
+
+yo todavía movía en la B y el Dr. Bustos me dijo que
+
+teníamos que moverla, que tenía unas condiciones
+
+bárbaras y yo le dije que no, que estaba muy nueva que
+
+no la había ni arreglado todavía. Me insistieron y la
+
+movimos. La yegua estaba tan cruda que le tuve que
+
+enseñar a hacer las pruebas antes de arreglarla porque
+
+no me daba el tiempo para llegar a la competencia. La
+
+moví y quedé con 52 o 53 puntos y ya nunca más bajó de
+
+ese puntaje todas las veces que compitió.
+
+La yegua ya había demostrado que valía,
+
+¿la empezaste a tratar distinto?
+
+Desde que llegó a casa siempre la traté como una yegua
+
+especial. Eso lo aprendí de mi papá, que a los caballos
+
+cracks los trata diferente, les da otra importancia. Así que la
+
+Pistilla en casa tiene su bozal, su bozalejo, su guatana y su
+
+freno que los usa ella y nadie más. Finalmente, desde el año
+
+pasado, tiene también su montura exclusiva. Lo que pasa
+
+es que ella es como me gustan a mí los caballos para la
+
+rienda, mucho más ancha de atrás que de adelante, casi
+
+triangular, entonces cuando se vuelca en las troyas y agarra
+
+velocidad yo sentía que me chupaba en la montura que
+
+tenía porque era de aletas chicas y no me podía tener bien,
+
+sentía que me sacaba para adelante. Así que me hice hacer
+
+una con las aletas más cuadraditas para poder agarrarme
+
+mejor. El problema es que a veces uno se preocupa por su
+
+propia comodidad y se olvida un poco de la comodidad del
+
+caballo y de lo que necesita cada uno en particular y
+
+terminás trabajando varios caballos con una misma montura.
+
+Pero cuando empezás a afinar el lápiz te preocupás por
+
+cosas como ésta, así que ahora ella tiene su propia montura.
+
+Y de ahí ya a Palermo.
+
+Claro. Ese año yo clasifiqué a la final de la B con 3 caballos,
+
+la Pistilla, el Sayana Cóndor y la Nochera Artesana. Quedé
+
+campeón con la Artesana y empatado en el segundo
+
+puesto entre la Pistilla, el Cóndor y el Traga Libros que
+
+movía Cristian Aguilera. Fuimos al desempate que creo
+
+que fue con los andares y el ocho y quedamos empatados
+
+de nuevo así que desempatamos por los puntos de los
+
+andares. Terminó segundo Cristian Aguilera, aunque en el
+
+anuario sale que quedé segundo yo.
+
+Yendo al presente, vos llegaste
+
+a esta final como candidato.
+
+Uno no piensa en eso. Piensa en hacer las cosas bien porque
+
+vive de ésto. Era una temporada especial porque a la yegua
+
+la habíamos sacado de la rienda para probarla en alguna
+
+otra prueba y después ya dejarla para madre. Me decían
+
+que ya había dado todo, ya había demostrado de lo que era
+
+capaz, no tenía más. Yo la peleé a muerte porque sabía que
+
+tenía cosas grandes por hacer todavía, es relativamente
+
+nueva y le faltaba maduración, sentía que había que darle
+
+otra oportunidad. Ahí me di cuenta de que, o la preparaba
+
+para moverla en el aparte o me la llevaban al campo a
+
+sacarle cría así que no me quedó otra que empezarla a
+
+topear. El topeo es muy bueno para la arregladura, es parte
+
+de lo que se necesita para tener un caballo terminado y
+
+además sirve para despejarle la cabeza a los mancos.
+
+Variarles el trabajo, cambiarles un poco las exigencias,
+
+pedirles cosas distintas hacen que les arregles detallitos
+
+que de otra manera no hubieras podido y que quizás no
+
+te dabas cuenta de que el caballo tenía.
+
+¿Llegaste a correrla en el aparte?
+
+La corrí en el aparte y nos fue muy bien. Terminamos
+
+cuartos con puntaje para esta`
+            },
+            {
+                id: '2013-3',
+                year: 2013,
+                title: `Cabalgata de Criadores`,
+                location: `Varias locaciones`,
+                date: `Febrero 2013`,
+                content: `CABALGATA
+
+de Criadores
+
+Competir un criollo hoy es correr en Fórmula 1. Cuidados
+
+extremos, vendas, cremas, inyecciones, suplementos,
+
+planes de entrenamiento, mantas y boxes. Cuidados ne-
+
+cesarios para caballos de elite, ultrapreparados que tie-
+
+nen que desempeñar su actividad en la pista, rayando o
+
+apretando vacas, apartando o mostrando la pureza de
+
+sus líneas. O recorriendo los 750 km de la Marcha de
+
+Resistencia, esa hazaña. El crecimiento de la raza, el me-
+
+joramiento de su genética y la necesidad de desarrollar el
+
+atractivo funcional del criollo fueron guiando su uso en
+
+esa dirección. También, claro, está el criollo como herra-
+
+mienta de trabajo en el campo, apartando, arreando, en-
+
+cerrando, embretando, enlazando y demás andos.
+
+En el campo siempre hay tiempo. Un mate más, otra his-
+
+toria, el tranquito para revisar las aguadas, la siesta en
+
+verano. Eso hace del hombre de campo típico una perso-
+
+na parsimoniosa, tranquila, paciente. En la ciudad no existe
+
+ese tiempo. No hay paseos porque hay embotellamien-
+
+tos, no hay un mate más porque se va el colectivo, ni hay
+
+oportunidad de historias alargadas. Se va al punto, se
+
+concreta, se sintetiza, se abrevia, se empobrece. Ni si-
+
+quiera en el campo logra desacelerarse el citadino. Por-
+
+que va el fin de semana y son solamente dos días y el
+
+lunes hay que estar de vuelta y andá a saber cuántos
+
+kilómetros se hicieron para llegar hasta ahí. Entonces no
+
+se frena y se revisan manadas, potrillos y padrillos, se
+
+Esta tecnificación en el manejo de nuestro caballo nos ha
+
+permitido alcanzar niveles de calidad inéditos, pero nos
+
+estamos olvidando de andar a caballo. Del acto puro y
+
+simple de ensillar y montar sin objetivos precisos, distraí-
+
+dos de la rectitud, olvidados de la reunión, ignorantes de
+
+la pata. Enhorquetados en comunión con el caballo como
+
+excusa, como simple vehículo, como aglutinante con el
+
+otro, transformándose éste en el punto de contacto igua-
+
+lador entre los jinetes.
+
+Porque desde el momento en que montamos y nos cru-
+
+zamos con otro en la misma situación, se genera un víncu-
+
+lo, una cercanía instantánea que permite la charla ama-
+
+ble, el genuino interés por ese otro que conforma el noso-
+
+tros y nos enriquece y completa.
+
+trabajan los caballos en doma, se chequea que la casa
+
+esté en condiciones y al final, si queda tiempo, se ensilla
+
+y se sale a dar una vueltita, un paseo.
+
+La cabalgata nos permite hacer esa metamorfósis, ese
+
+cambio de chip que nos deja jugar a hombres de campo
+
+por una semana. Pero no porque nos vistamos de faja y
+
+pañuelo y andemos a horcajadas todo el día ni porque
+
+guitarremos folclore a la nochecita, nos convierte en hom-
+
+bres de campo porque nos regala lo más valioso que se
+
+le puede dar a un hombre de ciudad. Nos regala tiempo.
+
+Son cinco días donde no hay que llegar temprano más
+
+que al horario de salida, cinco días donde en el momento
+
+en que subís terminaste tus deberes de la jornada y so-
+
+lamente te queda disfrutar del caballo, del paisaje, de los marcheros. Esos cinco días con tiempo y desco-
+
+nectados del mundo real alcanzan para relajarse y
+
+propician la charla, el encuentro, aumentan el interés
+
+por el otro, por sus historias, por cómo está, si nece-
+
+sita ayuda, si esa cincha está bien, si vení que te
+
+ajusto, podés con ese caballo de tiro, guarda que
+
+perdiste una herradura, alguien quiere agua, mirá
+
+los cóndores, de dónde sos, qué lindo el picazo,
+
+dónde te hiciste esa cabezada, pasame un mate,
+
+mirá lo que es esa vista.
+
+Andar a caballo en su versión más pura, eso es la
+
+Cabalgata de Criadores. Una institución dentro de la
+
+raza con 22 ediciones consecutivas a lo largo y a lo
+
+ancho del país, desde la Quebrada de Humahuaca
+
+a San Martín de los Andes y de Mendoza a Mar del
+
+Sur, por la que pasaron desde jinetes campeones
+
+hasta familias entusiastas con edades entre 7 y 80
+
+años. Un lujo que tenemos a disposición todos los
+
+criollistas cada febrero.
+
+Me cuesta cerrar esta nota porque me queda la sensa-
+
+ción de no haber transmitido fielmente lo grandiosa que
+
+es la Cabalgata. Doy vueltas, tacho, reescribo y fraca-
+
+so. Hasta que me doy por vencido y pienso, con una
+
+media sonrisa, que no es culpa de la pluma. Yo les
+
+puedo contar, medio a lo bruto, lo que pasa cada febre-
+
+ro, les puedo decir lo que yo siento, les puedo anticipar
+
+lo que creo que van a sentir ustedes. Pero, si realmente
+
+quieren saber de qué se trata, tienen que ajustar una
+
+cincha ajena a las 6 de la tarde en un desfiladero mien-
+
+tras el viento les vuela el sombrero y el caballo, amadri-
+
+nado, no les hace el favor de estarse quieto. Ah.., van a
+
+ver que esa cincha de ajena no tiene nada, que es tan
+
+de ustedes como las manos que ajustan y la sonrisa
+
+que agradece. Ah.., y no a través de las palabras, van
+
+a entender de qué les hablo.
+
+No puedo escribir más nada. VENGAN A
+
+LA CABALGATA, no saben (no pueden
+
+saber) lo que se están perdiendo.`
+            },
+            {
+                id: '2020',
+                year: 2020,
+                title: `Final Nacional FZB Categoría A 2020`,
+                location: `La República`,
+                date: `Febrero 2020`,
+                content: `Final(es) de la
+
+Felipe Z. Ballester “A”
+
+Por Nicolás Gimbatti
+
+A falta de una, dos. En 2020, con la pandemia cerrando
+
+todo en plena semifinal y obligando a jinetes y expositores
+
+a casi escapar de Jesús María para poder llegar a salvo a sus
+
+casas, era difícil pensar que el año no estaba perdido. Y a
+
+medida que el año avanzaba y las restricciones no afloja-
+
+ban, aumentaban las posibilidades de una temporada en
+
+cero. Pero la Asociación no aflojó la cinchada y jinetes, cria-
+
+204
+
+dores y caballos mantuvieron firme el esfuerzo para llegar
+
+enteros y en las mejores condiciones posibles a ese febrero
+
+atípico en La República. A la vuelta de eso, seis meses des-
+
+pués y en Mendoza, acaso la casa de la Rienda, tuvimos la
+
+final que ya correspondía al año en curso. Por eso, desde
+
+esta columna felicitamos a todos los involucrados y los in-
+
+vitamos, en un formato también atípico, a leer la crónica
+
+doble que este año (en el que celebramos el décimo aniver-
+
+sario de estas publicaciones) nos convoca a recordar lo que
+
+fue un año inolvidable. Y que esperamos que no se repita.
+
+Final Nacional “A” Ciclo 2019 – 2020
+
+el lugar era la República y el calor de febrero transpiraba
+
+los barbijos obligatorios de todos los (protocolarmente es-
+
+casos) concurrentes. los jurados Horacio españa y luciano
+
+Trangoni se apersonaban en pista y empezaba el desfile de
+
+finalistas que después de un largo año, de todos los pro-
+
+blemas que trajo la pandemia y de la incertidumbre en la
+
+que todavía vivimos (ahora también, pero un poco menos),
+
+salían a buscar lo que querían que fuera suyo.
+
+Entraba Gonzalo Nievas, que tenía más caballos en la
+
+final que familiares en la tribuna, esta vez montado en
+
+el Leñador. Manantiales de las Palmas Leñador, oscuro
+
+importado de chile que muriera poco después de la final
+
+y para quien vaya nuestro recuerdo. arrancaba bien el
+
+pingo, imponente y con andares de 7 puntos y medio,
+
+pero se iba diluyendo a medida que la prueba avanzaba;
+
+nos regalaba una buena vuelta sobre las patas y dejaba
+
+la pista con 40 puntos y medio.
+
+206
+
+Seguía Cacho, otro histórico, esta vez en la Condesa, una
+
+hija (otra más) del Juramento. Unos andares de 6 nos po-
+
+nían a la expectativa y después encadenaba un combo
+
+de 8-7-8-7.5 en rayada, troya, ocho y volapié para dejar
+
+bien claro que no habían venido a pasear. seis puntos en
+
+la vuelta y un puntaje casi perfecto en los últimos dos la
+
+dejaban con 51.5 y el primer puntaje serio de la final. A
+
+recuperar el aire y ver qué hacían los otros.
+
+La Mañanera Felpa, con la monta de Jorge Sánchez, iba a
+
+entrar con el pie izquierdo a la pista y después de unos an-
+
+dares de 1 punto y medio no se iba a poder recuperar, por lo
+
+que terminaba con 25 puntos y medio y ganas de revancha.
+
+Volvía la estampa de Gonzalo, esta vez con Matute
+
+Ayacucho El Trueno, caballo ya veterano de finales. 31
+
+puntos y medio en los primeros cuatro movimientos nos
+
+hicieron abrir los ojos a todos y pensar que este año se le
+
+daba, pero un `
+            },
+            {
+                id: '2021',
+                year: 2021,
+                title: `Final Nacional FZB Categoría A 2021`,
+                location: `Mendoza`,
+                date: `Septiembre 2021`,
+                content: `2020 – 2021
+
+El lugar, esta vez, era Mendoza. Toda la Rienda del país se
+
+había convocado en un cónclave ultraintenso que nos llenó
+
+de caballos por varios días; presencialmente a los que pu-
+
+dieron llegar, y por la extraordinaria transmisión de la accc
+
+en vivo y en directo a quienes nos quedamos en casa. fue-
+
+ron cuatro días de emoción, pasión por la Rienda, camara-
+
+dería y competencia que tuvieron risas y llantos, alegrías y
+
+decepciones, pero que confirmaron que la Rienda es y se-
+
+guirá siendo uno de los puntales de la Raza, con presencia
+
+federal, para todas las edades y para ambos sexos.
+
+Y para muestra, un botón. con la presencia de antonio
+
+fazio y Juan cruz amestoy como jurados, y luis Bustos y
+
+andrés lalanne como eximios relatores, entraba en primer
+
+lugar Tinajera el Jefe montado por anita de Battista que se
+
+convertía en la primera mujer en toda la prolífica historia de
+
+la Rienda en mover en una final nacional de la Categoría A.
+
+con el volapié y la rayada como puntos altos de su prueba,
+
+los 45 puntos y medio son anecdóticos para Anita y este
+
+hijo de la leyenda de la Rienda, la Cimbronazo Esta Sí, cuyo
+
+mérito estaba dado por su sola presencia.
+
+Seguía en el orden Gonzalo Nievas con Luz Buena Agarrate
+
+Villa Seca, rosillo vistoso y bien arreglado como todo lo que
+
+mueve Gonzalo, pero que no iba a tener su mejor tarde y
+
+que se iba de la pista con 38 puntos y medio, perjudicado
+
+por un cero en el desmontar y montar.
+
+Pero la Rienda da revancha, y a Gonzalo le suele tocar en
+
+la misma prueba, porque no me acuerdo cuándo fue la últi-
+
+ma vez que movió uno solo en la final. Firmeza 1958 era el
+
+nombre de la lobuna importada de Brasil que venía a pro-
+
+bar suerte. También prolija y arreglada, yegua voluntario-
+
+sa, no iba a lograr destacarse y una vuelta sobre las patas
+
+de 5 puntos y medio la condenaban a la mitad de la tabla.
+
+41 puntos y a esperar mejor suerte el año que viene.
+
+Raúl González y Napaleofú Madrugón volvían a la final y
+
+volvían a meter 9 en los andares. Pero el resto de los mo-
+
+vimientos no iban a ser tan buenos y por más que hicieron
+
+puntaje perfecto en los últimos dos, se iban a quedar con
+
+46 puntos y un sabor un poco amargo.
+
+entraba el campeón de la B del año pasado (que se corrió
+
+este año, porque todo es una gran confusión y nadie sabe
+
+en qué año vivimos). nicolás Moreno y azote el Águila
+
+hacían su debut en la a y pueden estar tranquilos de que
+
+han hecho un papel dignísimo. unas patas fenomenales
+
+que les significaron 8 puntos y medio tanto en la rayada
+
+como en el volapié iban a ser los puntos más altos de una
+
+prueba que terminaba con 46 puntos y medio, el deber
+
+cumplido y todo el futuro por delante.
+
+Volvía a la pista anita de Battista para convertirse,
+
+entonces, en la primera mujer de la historia que metía
+
+dos caballos en la final de la a. Tinajera Mapuche era
+
+su montado esta vuelta y una prueba prolija, pero sin
+
+grandes hitos, los dejaba con 42 puntos.
+
+cachín ampuero, después del descanso para reacondicio-
+
+nar la pista, hacía su ingreso en Del siete licorera, yegua
+
+con linaje de Rienda al ser hija de la lista Blanca, aquella
+
+alazana hija del Tutor que ganara la Rienda en los ’90. no
+
+iba a ser con suerte esta aparición y la condena iba a venir
+
+por el lado del volapié y la vuelta sobre las patas. 41 puntos
+
+y medio y a pensar en la próxima temporada.
+
+aparecía un histórico de las pistas y a quien ojalá sigamos
+
+viendo todos los años en estas instancias. Rodrigo castells
+
+se acercaba a saludar a los jurados montado en el Ñandú
+
+cañón para medirse en tierra de gigantes. unos andares
+
+problemáticos asustaban a su hinchada, pero 8-8-8.5 en
+
+los tres movimientos siguientes le devolvían las esperan-
+
+zas. Cerraba la participación con 51.5 y los primeros puntos
+
+serios de esta final ya estaban en la pizarra.
+
+era el turno del histórico Pedrín Muñoz, que con mucha
+
+hinchada propia se apersonaba con Del Yaretal clotilde,
+
+yegua que fuera subcampeona nacional “B” tan solo seis
+
+meses antes y que ganara la morfología en los días previos.
+
+la prueba no iba a ser la mejor que esta yegua puede hacer
+
+y un volapié que le pagaron con 2 puntos la iba a dejar muy
+
+relegada, con 39 y medio en total.
+
+Gonzalo -siempre Gonzalo- esta vez con el entablado Dis-
+
+traído. Gateado brilloso y de paso firme que clavaba 8 en
+
+los andares y hacía enarcar las cejas de los espectadores,
+
+hilvanaba una prueba prolija que, sumada a esos 8 iniciales,
+
+terminaba con 48 puntos y la expectativa intacta.
+
+Ya a partir de ahora solo quedaban Pedrín y Gonzalo, y
+
+no con un solo caballo. Tatutí chimango era el pingo de
+
+Pedrín, pero no iba a tener la mejor tarde. una prueba
+
+prolija, pero un volapié que no se pagó, los dejó con 41
+
+puntos y medio. Pero Pedrín tenía una yegua más y qui-
+
+zás una carta bajo la manga.
+
+Matute ayacucho el chacal era el nombre y campeón
+
+Defensor el título. entraba Gonzalo con su lobuno dis-
+
+puesto a defender lo que había obtenido en la Repú-
+
+blica y 7 puntos en`
+            },
+            {
+                id: '2025',
+                year: 2025,
+                title: `Final FZB A 2024-2025`,
+                location: `Palermo`,
+                date: `Noviembre 2024`,
+                content: `Final Nacional FZB categoría A - 2024 / 2025
+
+Afuera era un día más. El 37 pasaba por Sarmiento, los vendedores en la puerta del zoológico
+
+transcurrían su sábado como cualquier otro y los paseantes en la Rural misma no tenían muy claro el
+
+peso de lo que estaba por pasar. Pero adentro no, adentro era distinto. Adentro de la pista se habían
+
+ajustado cinchas con un cuidado diferente. Se habían cepillado y trapeado los caballos como no se
+
+hace siempre. Las botas no eran las mismas, las espuelas tampoco, habían visto la luz las monturas
+
+especiales. Era la Final de la Rienda, era el día más importante de todos los días. Había 13 binomios
+
+listos para sacarse los ojos en la Central de Palermo que aparecía perfecta, invitando a ser trajinada
+
+abajo de un cielo diáfano. Estaba, como nunca, todo dado.
+
+Este año tuvo una cuota diferente, con un desfile seguido del Himno Nacional para darle el marco
+
+correspondiente a un evento como este. Con Gonzalo Nievas portando la bandera nacional, como
+
+campéon defensor de la categoría, y Nicolás Fazio llevando la bandera de la ACCC como campeón
+
+de la categoría B del año pasado y finalista este año.
+
+Pasadas las solemnidades, quedaba Gonzalo con la Matute Ayacucho Alegra, esa baya hija del
+
+Libertador Esquivo que el año pasado terminara tercera en la final luego del triple empate histórico
+
+que tuvimos en el primer lugar. La yegua se vio muy habilidosa y mostró que tiene cartas serias para
+
+dejar huella en esta prueba, pero un cero en el desmontar y montar y algunos puntos olvidados por
+
+acá y por allá la dejaban con 44.5 y la sensación de que cuando se madure del todo va a ser una
+
+yegua peligrosa. La habilidad y el arreglo están.
+
+Seguía María Fe de Battista con su gateada consagrada, la Arraigado Desterrada, que fuera
+
+campeona nacional y FICCC en 2023. Una yegua que ya dio todo y demostró su arreglo y su
+
+habilidad, pero que venía a reclamar un poquito más. Nos dejó como regalo un volapié extraordinario
+
+que se pagó con 8 puntos (el segundo fue de libro, vayan a verlo), pero no pudo llegar a los puntos
+
+altos en el resto de su prueba y más allá de la regularidad que tuvo, se volvió para San Luis con
+
+gusto a poco. 44 puntos para ellas y a cambiar el chip porque María Fe volvía en un rato.
+
+Tomaba la pista Hugo Sánchez, que se vino de Mendoza con toda su barra, en la Gualtallary
+
+Fachosa. Una yegua de goma, que se pegaba al piso en sus movimientos con una fuerza
+
+impresionante en sus patas. Y lo demostró en la prueba, pero puntos bajos en el combo del ocho, el
+
+volapié y la vuelta los iban a dejar con 44 puntos y ganas de más para la próxima temporada.
+
+Algo parecido le iba a pasar a Raúl Moya con Río Diamante Forastera, esta yegua dos veces
+
+subcampeona B y dos veces finalistas de la A. Pero un mal volapié y cero en el desmontar y montar
+
+la tiraban para atrás y la dejaban con 37 puntos.
+
+Uno atrás del otro venían los participantes, pero la prueba no terminaba de tomar color del todo,
+
+faltaba alguien que diera un golpe sobre la mesa. Y ahí apareció el Mañanero Perico. Este gateado
+
+impactante, lustroso y muy bien puesto venía con Nico Moreno en sus riendas a refrendar el primer
+
+puesto de la semifinal y el éxito de toda la temporada. Un hijo del Oración Papiro en una madre
+
+Afinao en la Chicha Baya, este padrillo cría de San Baldomero, expuesto por Cristian Tallone y
+
+domado por Fabián García era la sensación de la temporada y tenía la presión de demostrar que lo
+
+que había hecho no había sido casualidad.Y vaya si lo hizo. Deslumbró. Enhebró 7.5 puntos en cada uno de los primeros cuatro movimientos,
+
+mostrando una habilidad y unas condiciones extraordinarias que iban a aparecer todavía más a la
+
+vista en el volapié, que le iban a pagar con 8. En ese volapié hubo un momento extraordinario: el
+
+Perico y su jinete fueron al tranco hasta el extremo de la pista y Nico lo paró de frente a la carrera
+
+que iba a hacer, reunido, con la nuca en el punto más alto y la grupa ligeramente metida adentro.
+
+Posando. Fueron unos 10 segundos donde el caballo pareció decir “acá estoy yo, ¿les gusta lo que
+
+están viendo?” Ahí Nico lo palmeó y lo soltó en la atropellada. Después, una vuelta de 7.5 para
+
+bordar la actuación y un retroceso correcto, lo dejaban con 54 puntos, primero bien lejos de todos los
+
+demás y con números serios para los que venían atrás.
+
+Como si no hubiera alcanzado con el Perico, siguiente en el sorteo salió Gonzalo Nievas con Del
+
+Yaretal Pichiciego. Un gateado atleta de la cría de Cabaña Pedemonte que había quedado segundo
+
+atrás del Perico en la semi y venía ahora a arrebatarle el primer puesto que acababa de conquistar.
+
+Y vaya si arrancó derecho con unos andares de 8.5 que fueron extraordinarios y que en la primera
+
+parada para volver a la mano izquierda dejaron varias bocas abiertas. Una rayada de 7 y una troya
+
+de 7.5 lo mantenían incluso por arriba de lo que había hecho el Perico, pero un traspié en el ocho lo
+
+dejaban con 6.5 y con las ilusiones que se le em`
+            },
+            {
+                id: '2014',
+                year: 2014,
+                title: `Final Nacional FZB Categoría A 2014`,
+                location: `Palermo`,
+                date: `Noviembre 2014`,
+                content: `La cosa en el campo es temprano. Y la cosa cuando el campo va a la ciudad, parece que
+también así que el 30 de marzo de 2014 que era domingo y llovía a cántaros desde la noche
+anterior y animaba a calentar el agua y sacar las facturas, hordas de criollistas se
+apropincuaron en las barandas de la pista cubierta de la Rural para ver la Final Nacional de
+Rienda Felipe Z. Ballester, categoría A. Bueno, lo de hordas es exagerado, pero todo el resto
+no.
+Se corría la final de la A, lafinaldelarienda, cómo no ibas a estar. No importaban los horarios ni
+el clima ni cuánto sueño habías cosechado la noche anterior. Movía Cachín, el Negrito
+Aguilera, Pedrín, Gonzalito, Marcos volvía después de un año. Qué otra cosa tenías que hacer.
+Además, la lista de cracks que habían clasificado invitaba a la emoción porque no solo volvía el
+Miralejos sino que estaba la Pistilla para defender el título, volvía después de un año la
+Justiciera a confirmar todo lo que ya no necesita confirmarse y entraba con todo el peso de la
+candidatura y con un premio morfológico del día anterior la yegua más mirada de ese domingo,
+la Chuquisaca.
+Pero vamos a lo nuestro. Pasó la presentación, pasó el himno, arrancó la adrenalina y se
+quedó en pista la Justiciera, la bayita de La República que tanto nos había deslumbrado dos
+años atrás y que después de una temporada de descanso venía a por sus fueros. No arrancó
+bien, rompió al galope en los andares y, si bien Cacho la contuvo, perder puntos así es muy
+costoso y más con esta yegua que tiene como uno de sus fuertes a los andares. En el resto de
+la prueba no pudo remontar y terminó con 42 puntos que no le hacen justicia a su calidad.
+Atrás de ella venía el Pitucón, educado caballo montado por el debutante Luciano Machado
+que tenía sobre sus hombros la responsabilidad de llenar el lugar que había dejado Pablito
+Sánchez, que vive ahora en Chile. Lo del Pitucón fue prolijo, después de una muy buena
+semifinal pero no pudo asomar la cabeza demasiado y terminó con 43 puntos que lo dejaban
+sin esperanza.
+El primer puntaje destacable lo iba a hacer el Mañanero Un Secreto, primera monta de Gonzalo
+Nievas en la prueba. El gateado que venía a su segunda final nacional, metió 48 puntos gracias
+a su gran regularidad y a un volapié de 8 y medio que no iba a ser fácil de vencer, como nos
+tiene acostumbrado este padrillo de patas veloces. Buen puntaje para él y la final que
+empezaba a tomar colorcito.
+Era el tiempo del veteranísimo Siete Lapacho, montado por el (no tan) veterano Luisito Bustos.
+El gateado, héroe de mil batallas, conocedor de todas las pistas del país y noble como pocos,
+sintió la edad y no pudo destacar. Salvo una buena rayada de 7 puntos, no tuvo movimientos
+bien premiados y terminó con 40 puntos y medio y, creo, un pasaporte al retiro de las
+competencias y todos los agradecimientos que se merece este capón que dio todo y supo ser
+tercero en la final de hace dos años.
+Después de un año sin estar, el primero en su carrera, entraba a la pista Marcos Nievas, el
+eterno campeón, con Tinajera Buena Ley. Vistoso gateado de potentes movimientos, este hijo
+del Vinchuca entraba ganoso a la pista a demostrar que su buena semifinal en la inundada
+pista de Jesús María había sido más que un golpe de suerte. Regularidad en sus movimientos
+le iban a reportar 44 puntos y medio y la noción de que no iba a alcanzar pero que el papel
+había sido más que digno.Mientras el padre terminaba de mover, el hijo se aprontaba a la única experiencia que le faltaba
+vivir. Gonzalito se paraba al borde de la pista con su Pistilla para defender el título de
+Campeona Nacional A del año pasado y la yegua, como siempre, entraba de orejitas paradas,
+fina y elegante, con ganas de llevarse puesto todo lo que le pusieran enfrente. Siempre digo
+que para ganar la rienda hay que ser regular y, además, clavar un par de goles al ángulo que te
+den esa diferencia de puntitos que te aseguren el campeonato. La Pistilla es regular siempre y,
+también siempre, mete un par de joyitas. 8 puntos en la rayada y 9 en el volapié la dejaron con
+52 puntos, bien lejos del resto y con la adrenalina de saber que el bicampeonato podía ser una
+realidad pero que, sobre todo, el binomio había cumplido las expectativas.
+La prueba seguía y Cachín entraba con su segunda yegua, la Cuyano Bien Pagada, que había
+clasificado bien pero que no estaba entre las candidatas. Un cero en el desmontar y montar y
+algunos movimientos con bajo puntaje la dejaron totalmente afuera de la pelea con 41 puntos.
+En la punta de la pista se veía a la Chuquisaca. Precedida por la gallardía de su cogote, la
+yegua más linda en pisar jamás una pista de rienda, entraba al paso desplegando su elegancia
+y despabilándonos la modorra a todos. La comparación contra los puntos de la Pistilla era
+inevitable y para la mitad de la prueba ya le había sacado dos puntos y medio, había hecho 10
+en una rayada inolvidable por lo potente y lo equilibrada y encaraba el final de la prueba con
+todas las chances. Seis`
+            },
+            {
+                id: '2017',
+                year: 2017,
+                title: `Final Nacional FZB Categoría A 2017`,
+                location: `Palermo`,
+                date: `Octubre 2017`,
+                content: `Final Felipe Z. Ballester “A” 2017
+En algún box de algún lugar de la pampa húmeda, con el hocico hundido en un tacho de avena
+mojada, enmantado y tranquilo, un padrillo está a punto de ser protagonista de un día histórico
+y lo ignora completamente.
+A varios kilómetros, en un enorme galpón ruidoso, lleno de carteles, bombo, bandera y vincha,
+10 caballos entran en calor porque se viene la final de la Rienda A. Todo el año, un paquete de
+caballos y jinetes dan vueltas, trotan, galopan, entran las patas y se quedan tiesos, movidos por
+la pasión que genera la rienda. Esa enfermedad incurable que hace que nunca más puedas mirar
+un caballo galopando con la mano cambiada y que no te moleste.
+Así que ahí estaban ellos, los caballos con los grandes que los montan, y ahí estábamos nosotros,
+los que nos brillan los ojitos cuando vemos un volapié fluido, esperando justamente eso:
+llenarnos de volapieses, vueltas sobre las patas, troyas a fondo.
+Y los vimos, porque la rienda nunca te decepciona. Arrancó Gonzalito con El Trueno, tremendo
+lobuno que ya tiene varias batallas y que todavía no fue campeón porque por año gana uno solo
+y, bueno, que le vas a hacer. El tipo clavó 52 puntos de arranque nomás, como diciéndole al resto
+que no le temblaba el pulso para romper el hielo. Una prueba bien prolija, con una vuelta sobre
+las patas tremenda que se pagó con 8 y a sentarse a esperar que la cosa ya empezaba linda.
+Siguió el Chacaré, primer hijo de varios del padrillo del que les hablaba al principio (que seguía
+sin enterarse). Pedrín en la montura no se iba a asustar por los puntajes de Gonzalo y, ayudado
+por una rayada de 9.5, clavó también los mismos 52 asegurándose un desempate entre su
+gateado y el lobuno de Gonzalo.
+Del Siete Juanita, porque siempre tiene que haber una baya de La República en la final, entró a
+la pista montada por el gran Cachín Ampuero pero no iba a tener la suerte de otras veces. Un
+buen comienzo tentaba la ilusión, pero una vuelta sobre las patas de 5 la dejaba con 49 puntos y
+ganas de revancha.
+Hugo Sánchez mandó a su Manantiales de las Palmas Leñador derecho a la pista con ganas de
+pisar fuerte, pero ya en la rayada se vio que no iba a ser su día. Una pena para el oscuro que
+seguramente va a ver años mejores, 44.5 puntos y la amargura de saber que hay mucho más
+caballo de lo que se dejó ver ese día. La rienda es así.
+Al Quelú Pitucón lo hemos visto tantas veces que le reconocemos la sombra ya, y nos alegra
+siempre volver a verlo. Montado por Luciano Machado, jinete capacitado y veterano de cien
+batallas, entró con ganas de estampar su nombre bien alto y por un rato le pegaron una asustada
+a varios. Una prueba parejita, prolija, de esas lindas de ver, lo dejó con 49.5 puntos, segundo
+atrás de los empatados, expectante.
+La rienda siempre tiene esa cosa de que entra un caballo atrás del otro y uno medio que no se da
+cuenta, salvo cuando entra Marcos Nievas. La elegancia, la gloria acumulada y la humildad de
+este campeón histórico te hacen levantar la vista siempre. Marcos apareció montando al
+Entablao Distraído, un gateado que no dio todo lo que tenía y se quedó en 40.5 puntos, sabedor
+de que está para otras cosas.Si hablamos de elegancia y prolijidad, hablamos del Poqui Moreno y sus montados. Tenía dos en
+esta prueba y mandaba primero a la Cadrila, yegua que también ya reconocemos de lejos, y que
+andaba con ganas de entreverarse entre los de arriba, como siempre. La corrección, las entradas
+de pata, y una vuelta soberbia que debe haber dejado un pozo en la pista y se pagó con 9.5 (el
+puntaje más alto de toda la prueba) la dejaban segunda hasta el momento, con 51.5 atrás de los
+empatados que seguían firmes ahí arriba.
+Volvía a entrar Cacho, pero esta vez con la Estampa. Yegua que ya había ganado la B, que había
+clasificado primera para esta final y que también era hija, la segunda de esta prueba, del caballo
+del que les hablaba al principio. Yegua regalona del Negro Bustos, el hombre estaba que miraba
+de reojo de los nervios, pero pronto iba a ver que no tenía de qué preocuparse porque había
+yegua y había jinete. Cachín, como siempre, con la yegua en las yemas de los dedos, la hizo bailar
+por la pista con una mezcla de potencia y elegancia que le dio, no una, sino dos pruebas de 10
+puntos, la rayada y el volapié, y 10 puntos más en las últimas dos pruebas (y que ya van a ver que
+van a ser determinantes), compensando así una vuelta de 5.5 que le paró el corazón a más de
+uno de los que habían venido de Luján. 56.5 para estos dos que nos dejaron rojas las gargantas
+de tanto entrar las patas y los ojos llenos de rienda. Primeros solos y ahora andá a ganarles.
+A eso vino el Poqui con el Vilcún Rumbeado, para mostrar que no se le movía un pelo con lo que
+había pasado recién en la pista. No iba a poder ser aunque el Rumbeado iba a clavar una vuelta
+sobre las patas de 9 puntos, la segunda mejor de toda la prueba y la demostración de que parece
+que el Poqui algo sabe de hacer girar los pingos. 50.5 y a esperar l`
+            },
+            {
+                id: '2018',
+                year: 2018,
+                title: `Final Nacional FZB Categoría A 2018`,
+                location: `Palermo`,
+                date: `Noviembre 2018`,
+                content: `Es domingo al mediodía y las tribunas de la pista cubierta de Palermo se van llenando de
+paisanos que se arriman, como en una procesión laica, a ese pedazo de arena en el medio de
+la ciudad para ver la final de la Rienda, la meca de todos los apasionados por este disparate
+de ver un caballo dar vueltas sobre sí mismo hasta ponernos la piel de gallina.
+Es la final de la Rienda como siempre, porque es igual y es distinta, como cada vez. Esta vuelta,
+con el condimento de una Pre Final, que se había corrido el día anterior y había dejado
+solamente seis binomios para la final. Seis esperanzas separadas de la gloria por esa hora y
+pico que faltaba para saber quién se llevaría los laureles este año. Seis esperanzas con dos
+protagonistas, campeona y subcampeón del año pasado, que venían a sacarse los ojos por el
+título, de nuevo.
+A la pista, entonces. Matías Vázquez, que fuera campeón de la B, arrancaba con Viñatero
+Tramposo a ver si podía dejar un numerito en la pizarra que pusiera nervioso a todos los que
+venían atrás. 7 en los andares y un rayadón de 8.5 como para sacarse los nervios lo
+encaminaban derechito. Le iba a poner 7 a la troya y 5.5 en el ocho, único tropezón en una
+prueba que se perfilaba muy buena. Volapié de 6 y vuelta de 7.5 para completar lo que
+siempre necesita la rienda, consistencia. Le quedaban el desmontar y el retroceso, ese
+tándem de la muerte, frustrador histórico de sueños, pero Matías no se iba a intimidar,
+sumaba 9 entre los dos y dejaba sus 50 puntos y medio clavados ahí, y ahora que le ganen.
+Seguía Cachín con la baya, Del Siete Verá que No, primera de sus dos montadas. La yegua
+pagó su poca experiencia con unos andares de 5.5, pero se recuperó con trío de 7, 8 y 7 en la
+rayada, la troya y el ocho. 6 y 5 en volapié y la vuelta y 9 en los dos últimos movimientos la
+dejaban con 47 puntos y medio y con la bronca de que no alcanzó, pero con la certeza de que
+hay un crack ahí y que solamente le falta tiempo.
+Encaraba la pista Gonzalo con la Talapampa Siempre Bien y la tribuna iba entrando en calor,
+con un gusto raro por saber que ya estábamos en la mitad de la prueba, tan rápido, y que la
+final se nos escurría entre los dedos. Pero no había tiempo para apenarse demasiado, porque
+Gonzalo empezaba a tranquear unos andares que le pagarían con 9, metía una rayada de 7 y
+se despachaba con una de esas troyas que solamente él sabe hacer y que le iba a significar 8
+puntos más. Tremendo primer tercio de prueba para el mendocino que le hizo parar la oreja
+a varios, pero que no iba a poder sostener porque iba a ponerles 5, 4 y 4 al ocho, el volapié y
+la vuelta, para ver frustradas sus ambiciones de premio. Tanto que ni el puntaje perfecto en
+los dos últimos movimientos lo iba a poder rescatar. 47 puntos para Gonzalito, la alegría de
+haber estado en una final más y las expectativas directo a la nueva temporada.
+La estampa de La Estampa aparecía por el costado de la pista. Cachín traía a la campeona
+defensora de orejitas paradas hacia el centro de la pista para defender el título y arrancaba
+con 8 y 9 en los dos primeros movimientos para decir “acá estoy” y ponerle pimienta a la final.
+Un pequeño desorden en el final de la troya le costó que le pagaran solamente 7.5 puntos y
+un ocho no muy bueno le dio 5, obligándola a mostrar de qué estaba hecha en los últimos
+cuatro movimientos si quería ser bicampeona. ¿De qué está hecha? De lo que están hechos
+los grandes: 8.5 en el volapié, en lo que hasta el momento era el mejor del día y ¡9! en la
+vuelta para arrancar gritos y aplausos por todos los rincones de las tribunas. 4 en el desmontar
+y montar (como todos los caballos de la final, en algo que habrá que preguntarle a los
+historiadores si había pasado alguna vez, arriesgamos que no) y 5.5 en el retroceso para
+completar 56.5, puntaje de campeona, puntaje de crack, puntaje que iba a venir a disputar el
+Juramento, el otro protagonista principal de esta final.A los buenos deportistas no les dura la bronca por perder, la transforman en ganas de
+revancha. Y a eso venían el Negro Aguilera y el Juramento, todavía masticando esa final de
+2017, pero concentrados en este 2018 que los tenía ahí, en el lugar y el momento indicados,
+listos para reclamar lo que creían suyo. Todos nosotros, relamiéndonos por lo que se venía y
+listos para ir comparando movimiento a movimiento, a ver cómo venía la mano. 7.5 en los
+andares para arrancar firme pero un poquito atrás y 8 en una rayada prolija, que parecía que
+iba sobre rieles el tipo. Le iba a poner 8 también a la troya, pero seguía sin alcanzarle, venía
+un punto atrás en el golpe por golpe. Llegaba el ocho, la oportunidad de oro para este
+binomio: la Estampa había dejado 5 puntos y una ventana abierta para que el Negro buscara
+la gloria por ahí. 7.5 le pusieron, con la templanza de los grandes, confirmaron con 9 en lo
+que sí fue ya el mejor volapié del día, 8.5 en la vuelta, puntaje perfecto en el desmontar y
+montar que hizo casi sin dejarlo respirar al Juramento (que no lo ne`
+            },
+            {
+                id: '2019',
+                year: 2019,
+                title: `Final Nacional FZB Categoría A 2019`,
+                location: `Palermo`,
+                date: `Octubre 2019`,
+                content: `¿Habrá algo más lindo que ajustar la cincha en Palermo? Porque sí, es algo que hacés todos los
+días, un montón de veces, casi sin pensar. Pero hay un día, para unos pocos privilegiados, que lo
+hacés con mucho cuidado. En Palermo. Antes de una final.
+Porque es otoño y se corre la final de la Rienda, el todo por el todo de un grupo de jinetes, solo
+unos pocos, que vienen a ver si meten las patas en la historia o si se vuelven al pago a seguir
+intentando.
+Afuera, somos un montón de gente dispuesta a no perderse ningún detalle, aprontamos biromes
+y catálogos para ir llevando los puntos, ensillamos los mates y está todo listo, arranca.
+Ingresa a pista Gonzalo Nievas con la Talapampa Siempre Bien, yegua de los Gómez Quiroga con
+ganas de entreverarse entre los de arriba, y clava 8 y medio en los andares, como para que nadie
+dude de sus intenciones. Pinta para candidata, pero una vuelta sobre las patas de 2 puntos la
+deja complicada. 10 en los últimos dos movimientos, termina con 50 y a esperar a los otros
+participantes, a ver si le ganan.
+Tinajera Caleufú y Santiago Martínez entran a lo suyo. El bayo de Esevich ya es conocedor de
+estas lides y entra a la pista confiado y con ganas de dejar huella. Hacen una prueba pareja, con
+una vuelta sobre las patas espectacular que le pagan 9, pero dejan puntos en los últimos dos
+movimientos y se van con 46 y medio, a pensar en la próxima temporada.
+Matías Vázquez se apronta con el Viñatero Tramposo, de Giuliano, y arrancan lo que va a ser
+una prueba bien pareja, a la que le suman una rayada de 8 y medio que los deja con 50 puntos
+también, casi asegurando que en algún lugar iba a haber desempate.
+Cachín tenía dos caballos, la Estampa que ya sabía lo que era ganar, y el Cuyano Huinca
+Condenado, con quien encaraba la pista. Parecido al Caleufú, una prueba prolija, pero dejando
+varios puntos en el camino, termina con 47 y medio y a ponerle todas las fichas a la yegua.
+Volvía a entrar Gonzalo, esta vez con el bayo de los Crespo, directo desde Rosario. El Cruz Diablo
+No me olvides impone presencia y arranca con 7 en los andares, haciéndonos parar la oreja a
+varios. Caballo muy arreglado y ya casi un veterano de las pistas, Gonzalo lo lleva bien y lo deja
+en 50 puntos, sellando el triple empate y aumentando la tensión.
+Llegamos al tercio final, que empieza con el Zafarrancho, de Campos S.A., con la monta de Raúl
+González, que siempre está. Una rayada de 9 parece que lo pone como candidato al título, pero
+una vuelta sobre las patas de 5 lo tira para atrás y lo deja en 46 y medio. Quedan dos, por ahora
+es triple empate en la punta. Hay risas nerviosas y nervios a secas, pero nadie es indiferente a
+esta altura.
+Entra el Poky Moreno con Vilcún Maguyón, porque ya es una tradición que Enrique Tronconi
+tenga algún caballo en la final. El Poky hace años que pide pista y anda con ganas de ganar, pero
+arranca medio irregular. Hasta el volapié. Clava 9 puntos y corona con una vuelta de 8, entre los
+gritos de todos. 4 y 5 y medio en los últimos dos movimientos (¡ay, ese medio punto!) para
+quedarse con 54, mandar a los triple empatados al segundo lugar por lejos y sentarse a mirar a
+ver de qué está hecha la Estampa.
+Y la Estampa está hecha de buena madera, y la monta Cachín que es una garantía, así que lo que
+se viene va a estar lindo. Afuera, todos a mirar nuestros apuntes para ir comparando
+movimiento a movimiento. 7 y medios en los andares para arrancar un punto y medio arriba y
+9 en la rayada para aumentar a tres la diferencia y estirarla a cinco y medio con lo que suma en
+la troya. Pero va a perder esa diferencia punto a punto entre ocho, volapié y la vuelta, aunque
+quedándose con un restito, un medio punto al que se va a aferrar con uñas y dientes porque enlos últimos dos movimientos no se sacaron diferencia y ese medio punto, ese cero coma cinco,
+la deja con 54 puntos y medio y la lleva a los libros de historia porque ya es, oficialmente,
+¡Bicampeona Nacional de Rienda categoría A!
+Hay emoción y aplausos, abrazos en la tribuna y en la pista, pero falta un rato, porque hay un
+triple empate en el tercer puesto. Entran los empatados uno a uno y termina siendo el mejor
+del lote el Viñatero Tramposo, dejando el resultado final así:
+1. Del Siete Estampa
+2. Vilcún Maguyón
+3. Viñatero Tramposo
+4. Cruz Diablo El No me olvides
+4. Talapampa Siempre Bien
+5. Cuyano Huinca Condenado
+6. Campos Zafarrancho
+7. Tinajera Caleufú
+A festejar algunos, a bañar otros y todos a arrancar de cero, porque cada año es distinto, aunque
+siempre la emoción va a estar asegurada. Este año, además, tuvo un condimento especial que
+vino desde la categoría B. El campeonato de Rocío Canut nos dio una alegría unánime y desde
+esta columna le mandamos un abrazo enorme y esperamos que esta crónica en 2020 la
+encuentre entre sus participantes.`
+            },
+            {
+                id: '2022',
+                year: 2022,
+                title: `Final Nacional FZB Categoría A 2022`,
+                location: `Jesús María`,
+                date: `Abril 2022`,
+                content: `Final Nacional FZB Categoría A
+Por Nicolás Gimbatti
+El día gris no combinaba con la expectativa. La final de la rienda volvía a Jesús María, volvía a
+hacerse en la fecha habitual, sin barbijos y compartiendo mates. Pero hacía un frío digno de
+otras épocas y las nubes, que no amenazaban nada, se mantenían ahí como un recuerdo de lo
+que habían sido los diluvios de las semifinales.
+Los jinetes, reconcentrados, deambulaban por la pista sin rumbo aparente, pero mirándolos con
+detenimiento no había un movimiento que no estuviera calculado. Se venía el sorteo y
+empezaba a no haber tiempo. Había que calentar los caballos y preguntarles cómo estaban en
+ese momento, buscarlos a ver si los iban a poder encontrar, tantearlos, prepararse.
+Sorteo hecho y quedaba Nico Moreno con Azote El Revoltoso. Campeón de la B de 2020, Nico
+venía a decir cuatro cosas a la pista porque la rienda es para los que se animan. Ni tiempo a
+acomodarnos nos dio que ya había metido 7.5 en andares, 7.5 en la rayada, 6.5 en troya y
+ocho y 7.5 en volapié y vuelta. Hagan la cuenta, son puntos serios esos. Nadie estaba
+sorprendido, pero en realidad todos lo estábamos porque una cosa es saber lo que puede
+hacer un jinete y otra muy distinta es que efectivamente lo haga. Lamentablemente, y como
+suele pasar en esta prueba tan atractiva por lo ingrata, cero puntos en el desmontar y montar le
+ponían un signo de pregunta a su participación y ni los 6 del retroceso le iban a servir para
+terminar en el podio. 49 puntos totales y la certeza de que hay jinete y caballo para rato, y si
+tienen dudas, sumen los 4 puntos posibles en el desmontar y montar y hagan la cuenta.
+Gonzalo con Campos Guindalero entraba con la estampa de siempre, pero esta vez no se iba a
+corroborar en los hechos la jerarquía que tiene. Unos andares problemáticos pagados con 4.5
+ya lo complicaban y aunque iba a enhebrar un doble 7.5 en los circulares, iba a perder otro
+punto en el desmontar y montar y se quedaba con magros 43.5 puntos que no reflejan todo lo
+que este binomio puede dar.
+Situación parecida iba a vivir inmediatamente después con el Ahijuna Guascazo. Gonzalo
+siempre tiene revancha en la misma prueba porque es raro que clasifique con menos de dos
+caballos, pero esta no iba a ser la revancha esperada y una prueba muy por debajo de su
+potencial lo dejaba con solo 31 puntos y la expectativa puesta en los caballos que le quedaban.
+Rodrigo Castells con Ñandú Cañón, subcampeones vigentes de la categoría, venían con ganas
+de refrendar lo hecho y entraban a la pista con el tranco alegre y la mirada al frente, quizás
+sabiendo que después de los 6 puntos de los andares iban a clavar 8.5 en la rayada, como
+para ir aprontando. Un tropezón en el puntaje con 5.5 en los dos ejercicios circulares le ponían
+un signo de pregunta a la participación, pero un volapié de 7 y una vuelta de 8 despejaban
+bastante las dudas. 4 y 5 en el combo de la muerte de los últimos dos ejercicios y un total de
+49.5 que difícilmente alcanzarían para ganar, pero que lo ponían primero hasta el momento.
+El año pasado, Ana de Battista había quedado en la historia por ser la primera mujer en
+clasificar para la final de la rienda A. Este año, su hermana María Fe se convertía en la
+segunda cuando entraba con su Arraigado Desterrada a dejar bien claro que en esa familia hayclase y que las mujeres ya no necesitan ningún trato especial, han conquistado el mismo nivel
+que los hombres en todas las categorías de la rienda, y eso es una muy buena noticia. Arrancó
+cruzada su participación con unos andares de 4.5, pero después encadenó una serie de
+ejercicios prolijos y bien puntuados que la iban a dejar entreverada, pero sin chances de podio
+porque, como decimos siempre, en la rienda la regularidad es clave pero necesitás meter
+algunos goles en un par de movimientos para arañar el podio. 44.5 puntos finales, la
+satisfacción del deber cumplido y la expectativa de todos de volver a verla (¿quizás a ambas
+hermanas?) en la final del año próximo.
+El mismo puntaje final iba a alcanzar Pedrín Muñoz con Tatutí Isleta. El multicampeón y vigente
+defensor del título, venía con esta yegua a probar suerte aunque nos reservaba el plato fuerte
+para el final. Una prueba similar a la de María Fe, regular pero sin grandes hitos, lo dejaba con
+el mismo puntaje y con todas las expectativas en la lobuna campeona 2021, que ya estaba lista
+para entrar en cuanto se lo pidieran.
+Ariel Ubeda, otro galardonado en la B de 2021, entraba con la Mañanero Maestra y toda su
+imponencia para refrendar lo hecho el año anterior y para mostrar que estaba a la altura de la
+prueba y de la historia del prefijo que ensillaba. Y lo estuvo. El puntaje no lo acompañó, el
+desafío traicionero que suele representar la vuelta sobre las patas para los que pasan de la B a
+la A le jugó una mala pasada y le ensució lo que había sido una prueba prolija y vistosa. 38.5
+para él y todo un año por delante para tomarse revancha.
+Luz Buena Agarrate Villa Seca era el caballo y Gonzalo Nieva`
+            },
+            {
+                id: '2023',
+                year: 2023,
+                title: `La rienda, territorio para las sorpresas`,
+                location: `Palermo`,
+                date: `Otoño 2023`,
+                content: `La rienda, territorio para las sorpresas
+Todos los años nos acomodamos alrededor de una pista de arena con la certeza de que
+muchas cosas van a pasar. Sabemos que los jinetes (y amazonas) finalistas van a dar su mejor
+esfuerzo, sabemos que va a haber emoción, sabemos que la vamos a pasar bien y sabemos,
+sobre todo, que no sabemos qué va a pasar cuando se saque el sombrero el último
+participante.
+La prueba de rienda, especialmente en su categoría máxima, nos viene trayendo, una atrás de
+la otra, anécdotas y momentos que nadie podía prever cuando sonaba el himno. Nadie
+imaginaba que Pedrín iba a volver tan fuerte y meter un bicampeonato, nadie creía que una
+mujer (y ahora dos) iban a llegar a la final, nadie pensaba que un mismo padrillo iba a llenar el
+podio con tres hijos suyos. Y así siempre, cada año hay algo para llevarse.
+Pero lo de este 2023, de verdad que va a quedar en los libros de historia. Y lo adelanto al
+principio de la nota, matando la intriga, porque es tan grande que todos lo sabemos y hay que
+darle la importancia que se merece. Después de años de trabajo, después de las Copas
+Femeninas para darle difusión, después de ganar campeonatos en todas las categorías
+habidas y por haber y después de haber llegado a finales A, en 2023 por primera vez en toda la
+historia una mujer es Campeona Nacional de Rienda de la máxima categoría.
+María Fe de Battista, montada en Arraigado Desterrada, se llevó puestos todos los pronósticos
+y ganó la rienda. Ah, que también era FICCC, por si algo le faltaba. Pero vayamos a ver cómo
+fue.
+Era un día atípico para la final, porque se combinaban la competencia FICCC con la
+competencia nacional y no todos los caballos participaban en las dos pruebas, así que la lista
+era bastante interminable, y un poco confusa. Pero arrancaba tomando la pista Indaia Do
+Caracol, campeona nacional de rienda en Brasil, montada por Marcelo Santana Gaya, que iba
+a hacer una prueba más que digna para terminar con 40 puntos.
+Seguía Gonzalo Nievas, que había clasificado unos 200 caballos aproximadamente, esta vez
+con Luz Buena Agarrate Villa Seca, el rosillo que ya es veterano de finales. No iba a estar en su
+día y terminaba con 39.5 puntos.
+Tinajera Mojinete entraba tras él, uno de los 3 caballos de Pedrín Muñoz, el flamante máximo
+campeón de la categoría. El colorado iba a terminar con 42.5 puntos para darle paso a otro
+colorado, Tinajera El jefe, montado por Anita de Battista y ya veterano de finales también, que
+se iban a ir a la casa con 45.5 puntos.
+Gonzalo con el Entablado Distraído volvía a tomar la pista y lograba mejorar un poco su
+participación anterior, esta vez con 43 puntos. Atrás suyo, el Poki Moreno con Vilcún Nido Alto
+T/E, que iba a clavar 48.5 con la prolijidad de siempre y metiendo los primeros puntos serios
+del día.
+El siguiente era el Ñandú Cañón, caballo que ya había tenido sus premios y que esta vez
+entraba con la monta de nada menos que Marcos Nievas. Enhebró varios movimientos muybuenos y parecía que se iba a entreverar arriba, pero lamentablemente quedaría descalificado
+por bienestar animal.
+Como en la vida misma, atrás de los padres vienen los hijos y eso mismo hacía Gonzalo con
+Matute Ayacucho el Trueno, que se iba a ir con 48 puntos y quedaba segundo en la general,
+aunque participaba solamente por la FICCC.
+En ese momento no lo sabíamos, pero estábamos a punto de ser testigos de la historia.
+Entraba María Fe de Battista con Arraigado Desterrada. Una gateada elegante, femenina y
+prolija, manejada con maestría por María Fe, que ya se había ganado un lugar propio entre los
+grandes jinetes del país, y venía a refrendarlo.
+Hicieron una prueba súper prolija, con todos movimientos buenos, ordenados y con la violencia
+necesaria para sumar puntos. Además, metieron 8.5 en el ocho y 10 en los dos últimos
+movimientos, cumpliendo con los requisitos básicos para estar arriba: prueba pareja, 10 en los
+últimos dos y algún movimiento extraordinario. Y ahí estaban ellas, directo desde San Luis,
+primeras en solitario en la final nacional y final FICCC con 51.5 puntos.
+Después de un intervalo, seguía la historia. Ventor Negro da Robsur, con su negrura
+impactante y la conducción prolija de Reinaldo Kreusch metía 47.5 puntos para la FICCC y
+daba paso a Azote El Revoltoso que con Nico Moreno iba a hacer 38.5 puntos. ¿A
+continuación? Gonzalo Nievas con Tatutí Chacaré, que iban a terminar con 45.5 y la
+espectacularidad de siempre, que se vio afectada por un volapié que le pagaron 3.5 puntos.
+Beravebú Patrón era el otro caballo del gran y ascendente jinete Nico Moreno, y con toda la
+fuerza con la que vienen empujando, iban a meter 49 puntos totales para arrimarse bien arriba.
+Pedrín los seguía, esta vez con Cricao Malal Bandolera, para meter otros 49 puntos y poner las
+cosas interesantes. Aunque todos mirando desde abajo a María Fe y la Desterrada.
+El Poki Moreno traía su segunda monta del día, la rosilla gateada Vilcún La Maga T/E, que no
+iban a tener un buen día y se iban a quedar con 37 p`
+            },
+            {
+                id: '2024',
+                year: 2024,
+                title: `Final Nacional FZB Categoría A 2024`,
+                location: `Palermo`,
+                date: `Noviembre 2024`,
+                content: `Final FZB categoría A 2024
+Es un día de otoño en 2006 y un hombre de chaleco de carpincho y chupalla deja la pista central
+de Palermo después de haber obtenido el Campeonato Nacional de Rienda categoría A. No sabe,
+no puede saberlo, que va a ser el último que lo haga ahí por mucho tiempo. Ahora es febrero de
+2024, pasaron 18 años y hay otro hombre de chaleco y chupalla que toma la Pista Central para
+tratar de ser Campeón Nacional de Rienda. Es su hijo.
+Así de grande fue la pausa que nos tomamos para volver a la Central, así de histórico fue ese
+viernes tórrido de chalecos mojados por la transpiración y caballos entregando todo para ganarle al
+calor, al polvo, a la humedad. Y el disfrute fue enorme.
+Ver a los binomios entrar a calentar en esa pista mítica, en la que esperamos quedarnos para
+siempre, fue volver a casa. Fue revivir las entradas de patas del Afinao, del Facón, de la Esta sí,
+del Retacón, de la Gavina, de la Aguas Claras. Fue recordar finales históricas, abrazos padre-hijo,
+consagraciones, decepciones, sorpresas. Fue volver a estar donde tenemos que estar.
+Y en medio de todo eso, trece caballos con sus jinetes expectantes por la señal de largada y
+buscando consagrarse campeones de esta temporada fascinante. Arrancaba Gonzalo Nievas en
+Matute Ayacucho Alegra, la linda baya hija del Esquivo que hacía su debut en una instancia como
+esta y que, a paso firme y conducida por su jinete multicampeón, iba a deslumbrar con sus patas,
+sus vueltas y la velocidad de sus troyas para marcar 53 puntos en la pizarra y dejar un número que
+ya les metía preguntas a los otros 12 participantes.
+Seguía Ricardo Tolaba en el lomo de Malarriado Criminal, un lindo oscuro que con su jinete ya
+consagrado venía a querer entreverarse entre los de arriba pero no iba a ser su tarde. Una prueba
+menos prolija que lo que se necesita en estas instancias lo iba a dejar con 46 puntos y afuera de la
+pelea.
+Era el turno otra vez de Gonzalo, ahora con Matute Ayacucho El Chacal, caballo que ya fue
+Campeón Nacional y que siempre llega a las finales por su arreglo, su fuerza y la corrección y
+velocidad con que ejecuta sus movimientos. Su tarde esta vez no iba a ser la más inspirada y 50
+puntos lo dejaban segundo hasta el momento pero en una posición débil para lo que venía,
+sabiendo que quedaban 10 binomios más.
+Uno de esos eran Azote El Revoltoso y Nico Moreno, ya veteranos de campeonatos y finales. Esta
+vuelta no iba a poder ser y 47 puntos serían la cosecha para el primer caballo de Nico en la final de
+los tres que tenía (en la semi había metido seis).
+Cambio rápido de caballo y otra vez a la pista, esta vez con Vilcún Qué Decís que tampoco iba a
+estar del todo inspirado y sólo cosecharía 50 puntos. Pero el destino le tenía guardado algo a Nico,
+aunque todavía no lo supiera.
+Ahora sí, era el momento de la Historia. En el lomo de Entablado Distraído y 18 años después de
+su última conquista en la Central (de él hablábamos al principio, por si hay algún distraído), Marcos
+Nievas entraba en la pista para volver a hacer lo que mejor sabe: mover caballos a la rienda. Supresencia tranquila de hombre seguro dejaba a toda la central en silencio mientras el cinco veces
+campeón empezaba los andares buscando saborear glorias pasadas y empatarlo a Pedrín para
+recuperar el título de máximo ganador de campeonatos nacionales. El Distraído, arregladísimo, se
+movía con habilidad y prestancia a las órdenes de su jinete y al final de toda la prueba terminaba
+con 52 puntos que lo dejaban segundo por el momento y que en unas horas nos enteraríamos de
+cuán increíblemente cerca de la punta había quedado. Pero para eso falta todavía.
+Y quedaba mucha prueba por delante, ahora con el turno de Cañumil Alicate, el oscuro recontra
+vistoso de María Fe de Battista que había arrancado gritos y aplausos de las tribunas en la
+semifinal por su fuerza, su agilidad, su equilibrio y la violencia y velocidad de sus movimientos. Un
+caballo impresionante, que todavía era Campeón Nacional Novicios en ese momento, y que era
+movido con criterio y justeza por la campeona nacional vigente pero que iba a sentir el rigor del
+calor, de la presión, del esfuerzo en la semifinal y junto a un error en el desmontar y montar todo se
+iba a combinar para terminar con 44.5 puntos que no reflejaban la calidad que tienen. Los veremos
+en muchas finales más.
+Como seguramente veremos en muchas finales más a Raúl Moya que metió dos yeguas en la semi
+(madre e hija) y con la hija llegó a la final. Campeón 2023 de la categoría B y hombre prolijo y
+elegante para mover, iba a tener una actuación muy destacada y sobre todo increíblemente regular.
+7 en casi todos los movimientos, salvo andares con 6.5 pero compensados con 7.5 en el volapié,
+los iban a dejar con 50.5 y la sensación de que si a esa regularidad le sumaban algún movimiento
+extraordinario hubiera sido muy difícil ganarles. Volverán.
+El que volvía a la pista con su tercer caballo (de cuatro que iba a tener en total) era Gonzalo, esta
+vez con el g`
+            },
+            {
+                id: '2025-2026',
+                year: 2026,
+                title: 'Final FZB A 2025-2026',
+                location: 'Palermo',
+                date: 'Marzo 2025',
+                content: `Siempre que llovió, paró, pero siempre que paró volvió a llover también y llovida sobre mojado encontrábamos la Pista Central de Palermo aquel sábado 28 de marzo que se había enojado a la madrugada y había tirado baldazos de agua en la arena.`
+            }
+        ];
+
+
+        class RiendaBlog {
+            constructor() {
+                this.articles = articles;
+                this.currentView = 'home';
+                this.currentArticle = null;
+                this.query = '';
+                this.filters = { year: '' };
+                this.initSuggestions();
+                this.render();
+            }
+
+            initSuggestions() {
+                const years = new Set();
+                this.articles.forEach(a => years.add(a.year));
+                this.years = Array.from(years).sort((a, b) => b - a);
+            }
+
+            getFilteredArticles() {
+                return this.articles.filter(article => {
+                    const matchesQuery = this.query === '' || 
+                        article.title.toLowerCase().includes(this.query.toLowerCase()) ||
+                        article.content.toLowerCase().includes(this.query.toLowerCase());
+                    
+                    const matchesYear = this.filters.year === '' || article.year.toString() === this.filters.year;
+                    
+                    return matchesQuery && matchesYear;
+                }).sort((a, b) => b.year - a.year);
+            }
+
+            getSuggestions() {
+                if (this.query.length < 2) return [];
+                const q = this.query.toLowerCase();
+                const suggestions = [];
+                const matchingTitles = this.articles.filter(a => a.title.toLowerCase().includes(q));
+                if (matchingTitles.length > 0) {
+                    suggestions.push({ type: 'category', text: 'Artículos' });
+                    matchingTitles.slice(0, 5).forEach(t => {
+                        suggestions.push({ type: 'article', text: t.title, id: t.id });
+                    });
+                }
+                return suggestions;
+            }
+
+            handleSuggestionClick(suggestion) {
+                if (suggestion.type === 'article') {
+                    this.currentView = 'article';
+                    this.currentArticle = suggestion.id;
+                }
+                this.query = '';
+                this.render();
+            }
+
+            render() {
+                const app = document.getElementById('app');
+                
+                if (this.currentView === 'article') {
+                    const article = this.articles.find(a => a.id === this.currentArticle);
+                    app.innerHTML = `
+                        <div class="container">
+                            <button class="back-btn" onclick="blog.goHome()">← Volver</button>
+                            <h1>${article.title}</h1>
+                            <div class="article-view-meta">
+                                <span>${article.location}</span>
+                                <span>${article.date}</span>
+                            </div>
+                            <div class="article-view-content">${article.content}</div>
+                        </div>
+                    `;
+                } else if (this.query === '' && this.filters.year === '') {
+                    app.innerHTML = `
+                        <div class="home-header">
+                            <h1>Mis notas</h1>
+                            <div class="search-box">
+                                <input type="text" class="search-input" id="search-input" placeholder="Buscar..." autocomplete="off" />
+                                <div class="suggestions" id="suggestions"></div>
+                            </div>
+                        </div>
+                    `;
+                    this.setupSearch();
+                } else {
+                    const filtered = this.getFilteredArticles();
+                    app.innerHTML = `
+                        <div class="container">
+                            <div class="filters">
+                                <div class="search-control">
+                                    <input type="text" class="search-input" id="search-input" placeholder="Buscar..." value="${this.query}" autocomplete="off" />
+                                    <div class="suggestions" id="suggestions"></div>
+                                </div>
+                                <select class="filter-select" onchange="blog.setFilter('year', this.value)">
+                                    <option value="">Todos los años</option>
+                                    ${this.years.map(y => `<option value="${y}" ${this.filters.year === y.toString() ? 'selected' : ''}>${y}</option>`).join('')}
+                                </select>
+                                <button class="clear-btn" onclick="blog.clearFilters()">Limpiar</button>
+                            </div>
+                            <div class="results-info">${filtered.length} artículo${filtered.length !== 1 ? 's' : ''}</div>
+                            <div class="articles-grid">
+                                ${filtered.length > 0 ? filtered.map(article => `
+                                    <div class="article-card" onclick="blog.viewArticle('${article.id}')">
+                                        <div class="article-card-title">
+                                            <span>${article.title}</span>
+                                            <span class="article-card-year">${article.year}</span>
+                                        </div>
+                                        <div class="article-card-meta">${article.location} • ${article.date}</div>
+                                    </div>
+                                `).join('') : '<div class="empty-state">No se encontraron artículos.</div>'}
+                            </div>
+                        </div>
+                    `;
+                    this.setupSearch();
+                }
+            }
+
+            setupSearch() {
+                const input = document.getElementById('search-input');
+                const suggestionsContainer = document.getElementById('suggestions');
+                input.addEventListener('input', (e) => {
+                    this.query = e.target.value;
+                    const suggestions = this.getSuggestions();
+                    if (suggestions.length > 0) {
+                        suggestionsContainer.classList.add('active');
+                        suggestionsContainer.innerHTML = suggestions.map((s) => {
+                            if (s.type === 'category') return `<div class="suggestion-category">${s.text}</div>`;
+                            return `<div class="suggestion-item" onclick="blog.handleSuggestionClick({type:'article',id:'${s.id}'})">${s.text}</div>`;
+                        }).join('');
+                    } else {
+                        suggestionsContainer.classList.remove('active');
+                    }
+                });
+                input.addEventListener('blur', () => {
+                    setTimeout(() => suggestionsContainer.classList.remove('active'), 200);
+                });
+                input.focus();
+            }
+
+            setFilter(key, value) {
+                this.filters[key] = value;
+                this.render();
+            }
+
+            clearFilters() {
+                this.query = '';
+                this.filters = { year: '' };
+                this.render();
+            }
+
+            viewArticle(id) {
+                this.currentView = 'article';
+                this.currentArticle = id;
+                this.render();
+            }
+
+            goHome() {
+                this.currentView = 'home';
+                this.currentArticle = null;
+                this.query = '';
+                this.filters = { year: '' };
+                this.render();
+            }
+        }
+
+        let blog = new RiendaBlog();
+    </script>
+</body>
+</html>
